@@ -1,0 +1,1662 @@
+﻿schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  getRateAvailability(id: ID!): GetRateAvailabilityPayload
+  getRateAvailabilities(pageNumber: Int = 1 pageSize: Int = 100 roomId: ID!): GetRateAvailabilitiesPayload
+  getCity(id: ID!): City
+  getCities(countryId: ID! pageNumber: Int = 1 pageSize: Int = 10): GetCitiesPayload
+  getCountry(id: ID!): Country
+  getCountries(pageNumber: Int = 1 pageSize: Int = 10): GetCountriesPayload
+  getProperty(id: ID!): GetPropertyPayload
+  getProperties(pageNumber: Int = 1 pageSize: Int = 10 name: String apartmentType: ApartmentType cityId: ID country: String bookingType: BookingJourney status: PropertyStatus): GetPropertiesPayload
+  checkPublishProperty(input: CheckPublishPropertyInput!): CheckPublishPropertyPayload
+  getFacilities: GetFacilitiesPayload
+  searchUniversities(citySlug: String sort: String name: String pageNumber: Int = 1 pageSize: Int = 10): Universities
+  getRoom(id: ID!): GetRoomPayload
+  getRooms(pageNumber: Int = 1 pageSize: Int = 100 propertyId: ID!): GetRoomsPayload
+  checkPropertyOfOnlinePaymentMethod(properties: [OnlinePaymentMethodBankPropertyInput]): ResultPayload
+  listOnlinePaymentMethods(pageNumber: PositiveInteger = 1 pageSize: PositiveInteger = 10): PageOnlinePaymentMethodsPayload
+  getPaymentPlan(id: ID propertyId: ID): PaymentPlanPayload
+  pagePaymentPlans(pageNumber: PositiveInteger = 1 pageSize: PositiveInteger = 10 paymentCurrency: CurrencyUnit category: PaymentPlanCategory): GetPaymentPlansPayload
+  getLandlord(id: ID!): GetLandlordPayload
+}
+
+type GetRateAvailabilityPayload {
+  rateAvailability: RateAvailability
+}
+
+type RateAvailability {
+  id: ID!
+  roomId: ID!
+  tenancy: Tenancy
+  availability: Int!
+  bookableFrom: Date
+  bookableTo: Date
+  priceMin: String
+  priceMax: String
+  discount: Discount
+  availableThoughMoveInDatePassed: Boolean
+  turnaroundType: TurnaroundType
+  turnaroundTime: Int
+}
+
+type Tenancy {
+  moveIn: Date
+  moveOut: Date
+  moveInType: MoveInType
+  moveOutType: MoveOutType
+  tenancyLengthType: TenancyLengthType
+  tenancyLengthValue: [Int]
+}
+
+"Date in format ISO 8601 (YYYY-MM-DD)"
+scalar Date
+
+"MoveInType"
+enum MoveInType {
+  EXACTLY_MATCH
+  AFTER
+  ANYTIME
+}
+
+"MoveOutType"
+enum MoveOutType {
+  EXACTLY_MATCH
+  BEFORE
+  ANYTIME
+}
+
+"TenancyLengthType"
+enum TenancyLengthType {
+  EQUALS
+  NO_LESS_THAN
+  NO_MORE_THAN
+  BETWEEN
+  NOT_SPECIFIC
+}
+
+type Discount {
+  discountType: DiscountType
+  discountValue: String
+}
+
+"Discount Type"
+enum DiscountType {
+  ABSOLUTE
+  PERCENTAGE
+}
+
+enum TurnaroundType {
+  NOT_APPLIED
+  FIXED_DAYS
+}
+
+type GetRateAvailabilitiesPayload {
+  pageInfo: PageInfo
+  rateAvailabilities: [RateAvailability]
+}
+
+type PageInfo {
+  total: Int
+  totalPages: Int
+  currentPage: Int
+  pageSize: Int
+}
+
+type City {
+  id: ID!
+  name: String!
+  countryId: ID!
+}
+
+type GetCitiesPayload {
+  pageInfo: PageInfo
+  cities: [City]
+}
+
+type Country {
+  id: ID!
+  name: String!
+  countryCode: String!
+  currency: String!
+  rentCycle: BillingCycle!
+}
+
+"BillingCycle"
+enum BillingCycle {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+type GetCountriesPayload {
+  pageInfo: PageInfo
+  counties: [Country]
+}
+
+type GetPropertyPayload {
+  property: Property
+}
+
+type Property {
+  id: ID
+  name: String
+  slug: String
+  status: PropertyStatus!
+  latitude: Float
+  longitude: Float
+  landlordId: ID
+  cityId: ID
+  country: String
+  currency: String!
+  rentCycle: BillingCycle!
+  bookingType: BookingJourney!
+  zipCode: String!
+  addressLine1: String
+  addressLine2: String
+  apartmentType: ApartmentType!
+  tagLineCn: String
+  tagLine: String
+  descriptionCn: String
+  description: String
+  propertyTerms: [PropertyTerm]
+  facilities: PropertyFacilities
+  links: [PropertyLink!]
+  images: [Image!]
+  videos: [Video!]
+  propertyLink: String
+  bookNowFees: [BookNowFee]
+  bookNowFeesEnabled: Boolean
+  floorPlans: PropertyFloorPlan
+  universities: [University]
+  destinationUniversities: [University]
+  documentations: [Documentation]
+  confirmDueHours: PropertyDueHours
+  paymentDueHours: PropertyDueHours
+}
+
+enum PropertyStatus {
+  NEW
+  EDITING
+  PUBLISHED
+  UNPUBLISHED
+}
+
+"Booking Journey"
+enum BookingJourney {
+  BOOKING_WITH_CONSULTANT
+  MESSAGE_PROPERTY
+  RESERVE_ROOM
+}
+
+"ApartmentType"
+enum ApartmentType {
+  HOTEL_HOSTEL
+  LONG_TAIL
+  MULTI_FAMILy
+  REAL
+  STUDENT_ACCOMMODATION
+  CO_LIVING
+  APARTMENTS
+  HMO
+  HOUSE_SHARE
+  HOME_STAY
+  STUDENT_RESIDENCE_HALLS
+  DORMITORY
+  PURPOSE_BUILT_STUDENT_ACCOMMODATION
+  HOUSE
+  HOSTEL
+  HOTEL
+  APART_HOTEL
+  MULTIFAMILY
+  LODGE
+  CONDOS
+  TOWNHOUSE_HOME
+  BUNGALOW
+  TERRACE
+  VILLA
+  SERVICED_APARTMENT
+  DUPLEX
+}
+
+type PropertyTerm {
+  id: ID!
+  title: String!
+  url: String!
+  validFrom: Date
+  validTill: Date
+  fileName: String
+  status: PropertyTermStatus
+}
+
+enum PropertyTermStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+type PropertyFacilities {
+  features: [PropertyFacility]
+  bills: [PropertyFacility]
+  securityAndSafety: [PropertyFacility]
+  propertyRules: [PropertyFacility]
+}
+
+type PropertyFacility {
+  slug: String
+  label: String
+  name: String
+  group: String
+  type: FacilityType
+  checked: Boolean
+}
+
+enum FacilityType {
+  PROPERTY
+  UNIT_TYPE
+}
+
+type PropertyLink {
+  id: ID
+  propertyId: ID!
+  link: String!
+  area: PropertyLinkArea!
+  enabled: Boolean!
+}
+
+"PropertyLinkArea"
+enum PropertyLinkArea {
+  GENERAL
+  BUILDING_EXTERIOR
+  COMMON_INDOOR_SPACES
+  COMMON_OUTDOOR_SPACES
+}
+
+type Image {
+  id: ID!
+  type: ImageType
+  category: ImageCategory
+  contentType: String
+  filename: String
+  imageHash: String
+  active: Boolean
+  status: GalleryStatus
+  hero: Boolean
+}
+
+"Image Type"
+enum ImageType {
+  PROPERTY_IMAGE
+  ROOM_IMAGE
+  FLOOR_PLAN_IMAGE
+}
+
+"Image Category"
+enum ImageCategory {
+  BUILDING_EXTERIOR
+  COMMON_INDOOR_SPACES
+  COMMON_OUTDOOR_SPACES
+  GENERAL
+  ROOM
+  SPECIFIC
+}
+
+"Gallery Status"
+enum GalleryStatus {
+  INTERNAL_NEW
+  EXTERNAL_NEW
+  PENDING
+  APPROVED
+  REJECTED
+  PUBLIC
+}
+
+type Video {
+  id: ID!
+  path: String!
+  size: Int
+  videoHash: String!
+  fileName: String
+  active: Boolean
+  status: GalleryStatus
+}
+
+type BookNowFee {
+  id: ID!
+  name: String!
+  calculationType: BookNowFeeType!
+  calculationValue: Float!
+  paymentProcessingFee: Boolean
+}
+
+"BookNowFeeType"
+enum BookNowFeeType {
+  FIXED_AMOUNT
+  PER_BILLING_CYCLE
+  DEPOSIT_PERCENTAGE
+}
+
+type PropertyFloorPlan {
+  generalFloorPlanImages: [Image]
+  specificFloorPlans: [FloorPlan!]!
+}
+
+type FloorPlan {
+  id: ID
+  propertyId: ID
+  floorIndex: Int!
+  block: String!
+  floorPlanImages: [Image]
+}
+
+type University {
+  id: String
+  slug: String
+  name: String
+  originalName: String
+  latitude: Float
+  longitude: Float
+  rank: Float
+  citySlug: String
+}
+
+type Documentation {
+  label: String!
+  slug: String!
+  name: String
+  check: Boolean
+}
+
+"PropertyDueHours"
+enum PropertyDueHours {
+  HOURS_24
+  HOURS_36
+  HOURS_48
+  HOURS_60
+  HOURS_72
+  HOURS_96
+}
+
+type GetPropertiesPayload {
+  pageInfo: PageInfo
+  properties: [Property]
+}
+
+type CheckPublishPropertyPayload {
+  success: Boolean
+  check: JSON
+}
+
+"The `JSON` scalar type represents JSON values as specified by [ECMA-404](http:\/\/www.ecma-international.org\/publications\/files\/ECMA-ST\/ECMA-404.pdf)."
+scalar JSON
+
+input CheckPublishPropertyInput {
+  propertyId: DecodedPropertyID!
+}
+
+type GetFacilitiesPayload {
+  features: [Facility]
+  bills: [Facility]
+  securityAndSafety: [Facility]
+  propertyRules: [Facility]
+}
+
+type Facility {
+  slug: String
+  label: String
+  name: String
+  group: String
+  type: FacilityType
+}
+
+type Universities {
+  universities: [University!]
+}
+
+type GetRoomPayload {
+  room: Room
+}
+
+type Room {
+  id: ID!
+  name: String!
+  propertyId: ID!
+  category: RoomCategory!
+  bedCount: Int
+  bathroomCount: Float
+  bathroomType: BathroomTypeCategory
+  kitchenCount: Float
+  bedroomCountMin: Int
+  bedroomCountMax: Int
+  maxOccupancy: Int
+  genderMix: GenderMix
+  dietaryPreference: DietaryPreference
+  smokingPreference: SmokingPreference
+  floors: [Int!]
+  dualOccupancy: DualOccupancy
+  kitchenArrangement: KitchenArrangement
+  lastFurnished: YearMonth
+  facilities: [RoomFacility]
+  roomSize: RoomSize
+  bedSizeType: BedSizeType
+  bedSizes: [BedSize!]
+  links: [RoomLink!]
+  images: [Image!]
+  videos: [Video!]
+}
+
+enum RoomCategory {
+  ENSUITE_ROOM
+  ENTIRE_PLACE
+  PRIVATE_ROOM
+  SHARED_ROOM
+  STUDIO
+}
+
+enum BathroomTypeCategory {
+  PRIVATE_ENSUITE
+  PRIVATE_NON_ENSUITE
+  SHARED_ENSUITE
+  SHARED_NON_ENSUITE
+  MIXED
+}
+
+enum GenderMix {
+  MALE_ONLY
+  FEMALE_ONLY
+  MIXED
+}
+
+enum DietaryPreference {
+  VEGETARIAN
+}
+
+enum SmokingPreference {
+  NON_SMOKING
+  SMOKING
+}
+
+enum DualOccupancy {
+  DUAL_OCCUPANCY_ALLOWED
+  FREE_DUAL_OCCUPANCY
+  CHARGED_DUAL_OCCUPANCY
+  DUAL_OCCUPANCY_NOT_ALLOWED
+}
+
+enum KitchenArrangement {
+  PRIVATE
+  SHARED
+}
+
+"Month in format ISO 8601 (YYYY-MM)"
+scalar YearMonth
+
+enum RoomFacility {
+  AIR_CONDITIONING
+  BATHROOM
+  CHAIRS
+  CLOSET
+  DESK
+  DOOR_LOCK
+  HEATING
+  KITCHEN
+  TELEVISION
+  WIFI
+}
+
+type RoomSize {
+  descriptor: RoomSizeType
+  minimum: Int!
+  maximum: Int
+  unitOfArea: RoomSizeUnit
+}
+
+enum RoomSizeType {
+  EXACT
+  BETWEEN
+  MORE_THAN
+}
+
+enum RoomSizeUnit {
+  SQM
+  SQFT
+}
+
+enum BedSizeType {
+  UNIFIED
+  DIFFERENT
+}
+
+type BedSize {
+  bedType: BedType
+  lengthInCM: Int
+  widthInCM: Int
+  bedCount: Int
+}
+
+enum BedType {
+  SINGLE_BED
+  DOUBLE_BED
+  SMALL_DOUBLE_BED
+  KING_BED
+  KING_SINGLE_BED
+  CALIFORNIA_KING_BED
+  GRAND_KING_BED
+  QUEEN_BED
+  KING_SIZE_BED
+  TWIN_BED
+  BUNK_BED
+}
+
+type RoomLink {
+  id: ID
+  roomId: ID!
+  link: String!
+  enabled: Boolean!
+}
+
+type GetRoomsPayload {
+  pageInfo: PageInfo
+  rooms: [Room]
+}
+
+type ResultPayload {
+  result: Boolean
+}
+
+input OnlinePaymentMethodBankPropertyInput {
+  propertyId: DecodedPropertyID!
+}
+
+type PageOnlinePaymentMethodsPayload {
+  onlinePaymentMethod: [OnlinePaymentMethod]
+  pageInfo: PageInfo
+}
+
+type OnlinePaymentMethod {
+  id: ID!
+  landlordId: ID!
+  name: NonEmptyString!
+  methodType: OnlinePaymentMethodType!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+  stripes: OnlinePaymentMethodStripe
+  virtualCreditCards: OnlinePaymentMethodVirtualCreditCard
+  bankTransfers: OnlinePaymentMethodBankTransfer
+  properties: [Property]
+  updatedBy: LandlordContact!
+}
+
+"NonemptyString cannot be an empty string."
+scalar NonEmptyString
+
+"Online Payment Method Type"
+enum OnlinePaymentMethodType {
+  STRIPE
+  VIRTUAL_CREDIT_CARD
+  BANK_TRANSFER
+}
+
+"Datetime in format (YYYY-MM-DDTHH:mm:ssZ)"
+scalar Datetime
+
+type OnlinePaymentMethodStripe {
+  stripeId: NonEmptyString!
+}
+
+type OnlinePaymentMethodVirtualCreditCard {
+  email: NonEmptyString!
+}
+
+type OnlinePaymentMethodBankTransfer {
+  data: JSON!
+}
+
+type LandlordContact {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  phone: String
+  email: String
+}
+
+"PositiveInteger is a integer(>=1)."
+scalar PositiveInteger
+
+type PaymentPlanPayload {
+  paymentPlan: PaymentPlan
+}
+
+type PaymentPlan {
+  id: ID!
+  landlordId: ID
+  name: String
+  currency: String
+  description: String
+  startDate: Date
+  endDate: Date
+  createdAt: Datetime
+  updatedAt: Datetime
+  properties: [PaymentPlanProperty]
+  deposits: [OrderDeposit!]
+  fees: [OrderFee!]
+  instalments: [OrderInstalment!]
+  active: Boolean
+  paymentOnline: Boolean
+  category: PaymentPlanCategory
+}
+
+type PaymentPlanProperty {
+  id: ID
+  name: String
+  slug: String
+  status: LowCasePropertyStatus!
+  bookingJourney: BookingJourney!
+}
+
+enum LowCasePropertyStatus {
+  NEW
+  EDITING
+  PUBLISHED
+  UNPUBLISHED
+}
+
+type OrderDeposit {
+  id: ID!
+  paymentPlanId: ID
+  name: String!
+  paymentType: DepositFeeType
+  amount: NonEmptyString
+  price: NonEmptyString
+  currency: CurrencyUnit
+  description: String
+  payThroughStcom: Boolean
+  createdAt: Datetime
+  updatedAt: Datetime
+}
+
+"DepositFeeType"
+enum DepositFeeType {
+  FIXED_AMOUNT
+  PER_BILLING_CYCLE
+}
+
+"CurrencyUnit"
+enum CurrencyUnit {
+  AED
+  AFN
+  ANG
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BGN
+  BMD
+  BND
+  BOB
+  BRL
+  BSD
+  BWP
+  BYR
+  BZD
+  CAD
+  CHF
+  CLP
+  CNY
+  COP
+  CRC
+  CUP
+  CZK
+  DKK
+  DOP
+  EEK
+  EGP
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GGP
+  GHC
+  GIP
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HUF
+  IDR
+  ILS
+  IMP
+  INR
+  IRR
+  ISK
+  JEP
+  JMD
+  JPY
+  KES
+  KGS
+  KHR
+  KPW
+  KRW
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LTL
+  LVL
+  MKD
+  MNT
+  MUR
+  MXN
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RMB
+  RON
+  RSD
+  RUB
+  SAR
+  SBD
+  SCR
+  SEK
+  SGD
+  SHP
+  SOS
+  SRD
+  SVC
+  SYP
+  THB
+  TRL
+  TRY
+  TTD
+  TVD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  UYU
+  UZS
+  VEF
+  VND
+  XCD
+  YER
+  ZAR
+  ZWD
+}
+
+type OrderFee {
+  id: ID!
+  paymentPlanId: ID
+  name: NonEmptyString!
+  paymentType: DepositFeeType
+  amount: NonEmptyString
+  price: NonEmptyString
+  currency: CurrencyUnit
+  description: String
+  payThroughStcom: Boolean
+  createdAt: Datetime
+  updatedAt: Datetime
+}
+
+type OrderInstalment {
+  id: ID
+  paymentPlanId: ID
+  name: String
+  fromTenancy: Int
+  toTenancy: Int
+  tenancyUnit: TenancyUnit
+  fullPayment: Boolean
+  payNowAmount: Float
+  payWeekly: Boolean
+  payRemainderAtOnce: Boolean
+  payQuarterly: Boolean
+  payMonthly: Boolean
+  requireGuarantor: Boolean
+  country: Country
+  updatedAt: Datetime
+  createdAt: Datetime
+}
+
+"Tenancy Unit"
+enum TenancyUnit {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+enum PaymentPlanCategory {
+  DEPOSIT_IS_REQUIRED
+  RENT_IS_REQUIRED
+}
+
+type GetPaymentPlansPayload {
+  paymentPlans: [PaymentPlan]
+  pageInfo: PageInfo
+}
+
+type GetLandlordPayload {
+  landlord: Landlord
+}
+
+type Landlord {
+  id: ID!
+  name: String
+  slug: String
+  status: LandlordStatus
+  registerType: LandlordRegisterType
+  businessNumber: String
+  businessScale: Int
+  businessType: BusinessType
+  companyType: CompanyType
+  billingAddress: String
+  billingPostalCode: String
+  createdAt: Datetime!
+  updatedAt: Datetime!
+  verifiedAt: Datetime
+}
+
+enum LandlordStatus {
+  ONBOARDING
+  PENDING
+  VERIFIED
+  IN_CONSULTATION
+  REJECTED
+  LOST
+  UNPUBLISHED
+}
+
+enum LandlordRegisterType {
+  SELF_REGISTERED
+  STAFF_CREATED
+  PMS_CREATED
+}
+
+enum BusinessType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum CompanyType {
+  REAL_ESTATE_AGENCY
+  PROPERTY_MANAGEMENT_COMPANY
+  PRIVATE_MANAGEMENT
+  UNIVERSITY_OWNED_OR_MANAGED
+  HMO
+  OTHER
+}
+
+type Mutation {
+  createRateAvailability(input: CreateRateAvailabilityInput!): CreateRateAvailabilityPayload
+  updateRateAvailability(input: UpdateRateAvailabilityInput!): UpdateRateAvailabilityPayload
+  deleteRateAvailability(input: DeleteRateAvailabilityInput!): DeleteRateAvailabilityPayload
+  createProperty(input: CreatePropertyInput!): CreatePropertyPayload
+  updateProperty(input: UpdatePropertyInput!): UpdatePropertyPayload
+  updatePropertyDueHours(input: UpdatePropertyDueHoursInput!): UpdatePropertyPayload
+  updatePropertyPolicy(input: UpdatePropertyPolicyInput!): UpdatePropertyPayload
+  setPropertyDocumentations(input: SetPropertyDocumentationsInput!): SetPropertyDocumentationsPayload
+  publishProperty(input: PublishPropertyInput!): PublishPropertyPayload
+  createPropertyTerm(input: CreatePropertyTermInput!): CreatePropertyTermPayload
+  deletePropertyTerm(input: DeletePropertyTermInput!): ResultPayload
+  updatePropertyFacilities(input: UpdatePropertyFacilitiesInput): UpdatePropertyFacilitiesPayload
+  createPropertyLink(input: CreatePropertyLinkInput!): CreatePropertyLinkPayload
+  deletePropertyLink(input: DeletePropertyLinkInput!): DeletePropertyLinkPayload
+  createRoomLink(input: CreateRoomLinkInput!): CreateRoomLinkPayload
+  deleteRoomLink(input: DeleteRoomLinkInput!): DeleteRoomLinkPayload
+  createPropertyImage(input: CreatePropertyImageInput!): CreatePropertyImagePayload
+  deleteImage(input: DeleteImageInput!): DeleteImagePayload
+  createRoomImage(input: CreateRoomImageInput!): CreateRoomImagePayload
+  createFloorPlanImage(input: CreateFloorPlanImageInput!): CreateFloorPlanImagePayload
+  bulkOperateFloorPlans(input: BulkOperateFloorPlansInput!): FloorPlanPayload
+  setPropertyUniversities(input: SetPropertyUniversitiesInput!): SetPropertyUniversitiesPayload
+  createRoom(input: CreateRoomInput): CreateRoomPayload
+  updateRoom(input: UpdateRoomInput): UpdateRoomPayload
+  deleteRoom(input: DeleteRoomInput): DeleteRoomPayload
+  createBookNowFee(input: CreateBookNowFeeInput): CreateBookNowFeePayload
+  updateBookNowFee(input: UpdateBookNowFeeInput): UpdateBookNowFeePayload
+  deleteBookNowFee(input: DeleteBookNowFeeInput): DeleteBookNowFeePayload
+  enableBookNowFee(input: EnableBookNowFeeInput): EnableBookNowFeePayload
+  createOfflinePaymentMethod(input: CreateOfflinePaymentMethodInput): OfflinePaymentMethodPayload
+  updateOfflinePaymentMethod(input: UpdateOfflinePaymentMethodInput): OfflinePaymentMethodPayload
+  createOnlinePaymentMethod(input: CreateOnlinePaymentMethodInput): OnlinePaymentMethod
+  updateOnlinePaymentMethod(input: updateOnlinePaymentMethodInput): OnlinePaymentMethod
+  deleteOnlinePaymentMethod(input: deleteOnlinePaymentMethodInput): OnlinePaymentMethod
+  createOrderDeposit(input: CreateOrderDepositInput): OrderDepositPayload
+  updateOrderDeposit(input: UpdateOrderDepositInput): OrderDepositPayload
+  deleteOrderDeposit(input: DeleteOrderDepositInput): OrderDepositPayload
+  createOrderFee(input: CreateOrderFeeInput): OrderFeePayload
+  updateOrderFee(input: UpdateOrderFeeInput): OrderFeePayload
+  deleteOrderFee(input: DeleteOrderFeeInput): OrderFeePayload
+  updatePaymentPlanInstalments(input: UpdatePaymentPlanInstalmentsInput): UpdatePaymentPlanInstalmentsPayload
+  createPaymentPlan(input: CreatePaymentPlanInput): PaymentPlanPayload
+  updatePaymentPlan(input: UpdatePaymentPlanInput): PaymentPlanPayload
+  deletePaymentPlan(input: DeletePaymentPlanInput): PaymentPlanPayload
+  updatePropertyPaymentPlan(input: UpdatePropertyPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
+  confirmBooking(input: ConfirmBookingInput!): ConfirmBookingPayload
+  confirmOfflinePayment(input: ConfirmOfflinePaymentInput!): ConfirmOfflinePaymentPayload
+  createLandlord(input: CreateLandlordInput!): CreateLandlordPayload
+  activateLandlord(input: ActiveLandlordInput!): ActiveLandlordPayload
+  createLandlordSubscription(input: CreateLandlordSubscriptionInput!): CreateLandlordSubscriptionPayload
+  updateLandlordSubscription(input: UpdateLandlordSubscriptionInput!): UpdateLandlordSubscriptionPayload
+}
+
+type CreateRateAvailabilityPayload {
+  rateAvailability: RateAvailability
+}
+
+input CreateRateAvailabilityInput {
+  roomId: DecodedUnitTypeID!
+  bookableFrom: Date!
+  bookableTo: Date!
+  availability: Int!
+  tenancy: TenancyInput!
+  discount: DiscountInput
+  priceMin: NonEmptyString!
+  priceMax: String
+  availableThoughMoveInDatePassed: Boolean
+  turnaroundType: TurnaroundType
+  turnaroundTime: Int
+}
+
+input TenancyInput {
+  moveIn: Date
+  moveOut: Date
+  moveInType: MoveInType!
+  moveOutType: MoveOutType!
+  tenancyLengthType: TenancyLengthType!
+  tenancyLengthValue: [Int]
+}
+
+input DiscountInput {
+  discountType: DiscountType!
+  discountValue: String!
+}
+
+type UpdateRateAvailabilityPayload {
+  rateAvailability: RateAvailability
+}
+
+input UpdateRateAvailabilityInput {
+  id: DecodedListingID!
+  bookableFrom: Date!
+  bookableTo: Date
+  availability: Int!
+  tenancy: TenancyInput
+  discount: DiscountInput
+  priceMin: NonEmptyString
+  priceMax: String
+  availableThoughMoveInDatePassed: Boolean
+  turnaroundType: TurnaroundType
+  turnaroundTime: Int
+}
+
+type DeleteRateAvailabilityPayload {
+  result: Boolean
+}
+
+input DeleteRateAvailabilityInput {
+  id: DecodedListingID!
+}
+
+type CreatePropertyPayload {
+  property: Property
+}
+
+input CreatePropertyInput {
+  bookingType: PropertyBookingJourney!
+  apartmentType: ApartmentType!
+  name: NonEmptyString!
+  addressLine1: NonEmptyString!
+  addressLine2: String
+  zipCode: NonEmptyString!
+  cityId: DecodedCityID!
+  latitude: Float
+  longitude: Float
+  tagLineCn: String
+  tagLine: NonEmptyString
+  descriptionCn: String
+  description: NonEmptyString
+  cancellationProcess: String
+  freeCancellationPeriod: FreeCancellationPeriod
+  noVisaNoPay: Boolean
+  noPlaceNoPay: Boolean
+}
+
+"Property Booking Journey"
+enum PropertyBookingJourney {
+  MESSAGE_PROPERTY
+  RESERVE_ROOM
+}
+
+enum FreeCancellationPeriod {
+  HOURS_24
+  HOURS_48
+  HOURS_72
+  BUSINESS_DAYS_5
+  CALENDAR_DAYS_0
+  CALENDAR_DAYS_3
+  CALENDAR_DAYS_5
+  CALENDAR_DAYS_7
+  CALENDAR_DAYS_14
+  CALENDAR_DAYS_28
+  CALENDAR_DAYS_30
+  CALENDAR_DAYS_60
+  CALENDAR_DAYS_90
+  UNTIL_CHECK_IN_DAY
+  UNTIL_THE_STUDENT_PAYS_FOR_THE_RENT
+  NO_COOLING_OFF_PERIOD
+  OTHER
+}
+
+type UpdatePropertyPayload {
+  property: Property
+}
+
+input UpdatePropertyInput {
+  propertyId: DecodedPropertyID!
+  name: NonEmptyString
+  addressLine1: NonEmptyString
+  addressLine2: String
+  zipCode: NonEmptyString
+  latitude: Float
+  longitude: Float
+  tagLineCn: String
+  tagLine: NonEmptyString
+  descriptionCn: String
+  description: NonEmptyString
+}
+
+input UpdatePropertyDueHoursInput {
+  id: DecodedPropertyID!
+  confirmDueHours: PropertyDueHours!
+  paymentDueHours: PropertyDueHours!
+}
+
+input UpdatePropertyPolicyInput {
+  propertyId: DecodedPropertyID!
+  cancellationProcess: String
+  freeCancellationPeriod: FreeCancellationPeriod
+  noVisaNoPay: Boolean
+  noPlaceNoPay: Boolean
+}
+
+type SetPropertyDocumentationsPayload {
+  result: Boolean
+}
+
+input SetPropertyDocumentationsInput {
+  propertyId: DecodedPropertyID!
+  propertyDocumentations: [SetPorpertyDocumentationInput]
+}
+
+input SetPorpertyDocumentationInput {
+  documentationSlug: NonEmptyString!
+  documentationTimeValue: NonEmptyString!
+}
+
+type PublishPropertyPayload {
+  success: Boolean
+}
+
+input PublishPropertyInput {
+  propertyId: DecodedPropertyID!
+  publish: Boolean!
+}
+
+type CreatePropertyTermPayload {
+  propertyTerm: PropertyTerm
+}
+
+input CreatePropertyTermInput {
+  propertyId: DecodedPropertyID!
+  title: String!
+  validFrom: Date!
+  validTill: Date
+  file: Upload!
+}
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload
+
+input DeletePropertyTermInput {
+  id: DecodedPropertyTermID!
+}
+
+type UpdatePropertyFacilitiesPayload {
+  success: Boolean
+}
+
+input UpdatePropertyFacilitiesInput {
+  propertyId: DecodedPropertyID!
+  facilitySlugs: [String]
+}
+
+type CreatePropertyLinkPayload {
+  link: PropertyLink
+}
+
+input CreatePropertyLinkInput {
+  propertyId: DecodedPropertyID!
+  link: String!
+  area: PropertyLinkArea!
+}
+
+type DeletePropertyLinkPayload {
+  success: Boolean
+}
+
+input DeletePropertyLinkInput {
+  id: DecodedPropertyLinkID!
+}
+
+type CreateRoomLinkPayload {
+  link: RoomLink
+}
+
+input CreateRoomLinkInput {
+  roomId: DecodedUnitTypeID!
+  link: String!
+}
+
+type DeleteRoomLinkPayload {
+  success: Boolean
+}
+
+input DeleteRoomLinkInput {
+  id: DecodedRoomLinkID!
+}
+
+type CreatePropertyImagePayload {
+  image: Image
+}
+
+input CreatePropertyImageInput {
+  propertyId: DecodedPropertyID!
+  category: ImageCategory!
+  hero: Boolean
+  file: Upload!
+}
+
+type DeleteImagePayload {
+  success: Boolean
+}
+
+input DeleteImageInput {
+  id: DecodedImageID!
+}
+
+type CreateRoomImagePayload {
+  image: Image
+}
+
+input CreateRoomImageInput {
+  roomId: DecodedUnitTypeID!
+  file: Upload!
+}
+
+type CreateFloorPlanImagePayload {
+  image: Image
+}
+
+input CreateFloorPlanImageInput {
+  propertyId: DecodedPropertyID!
+  floorPlanId: DecodedFloorPlanID
+  category: ImageCategory!
+  file: Upload!
+}
+
+type FloorPlanPayload {
+  floorPlans: [FloorPlan!]!
+}
+
+input BulkOperateFloorPlansInput {
+  propertyId: ID!
+  floorPlans: [FloorPlanInput!]!
+}
+
+input FloorPlanInput {
+  id: ID
+  floorIndex: Int!
+  block: NonEmptyString!
+}
+
+type SetPropertyUniversitiesPayload {
+  result: Boolean
+}
+
+input SetPropertyUniversitiesInput {
+  propertyId: DecodedPropertyID!
+  universityIds: [ID]!
+  isDestinationUniversity: Boolean
+}
+
+type CreateRoomPayload {
+  room: Room
+}
+
+input CreateRoomInput {
+  propertyId: DecodedPropertyID!
+  name: NonEmptyString!
+  category: RoomCategory!
+  bedCount: NaturalNumber!
+  floors: [Int]
+  maxOccupancy: NaturalNumber
+  dualOccupancy: DualOccupancy
+  bathroomType: BathroomTypeCategory!
+  kitchenArrangement: KitchenArrangement
+  bedroomCountMin: NaturalNumber
+  bedroomCountMax: NaturalNumber
+  bathroomCount: Float
+  kitchenCount: Float
+  genderMix: GenderMix
+  dietaryPreference: DietaryPreference
+  smokingPreference: SmokingPreference
+  lastFurnished: YearMonth
+  facilities: [RoomFacility]
+  bedSizeType: BedSizeType!
+  bedSizes: [BedSizesInput]
+  roomSize: RoomSizesInput
+}
+
+"NaturalNumber is a integer(>=0)."
+scalar NaturalNumber
+
+input BedSizesInput {
+  bedType: BedType
+  lengthInCM: PositiveInteger
+  widthInCM: PositiveInteger
+  bedCount: NaturalNumber
+}
+
+input RoomSizesInput {
+  descriptor: RoomSizeType
+  minimum: Int!
+  maximum: Int!
+  unitOfArea: RoomSizeUnit
+}
+
+type UpdateRoomPayload {
+  room: Room
+}
+
+input UpdateRoomInput {
+  id: DecodedUnitTypeID!
+  name: NonEmptyString
+  category: RoomCategory
+  bedCount: NaturalNumber
+  floors: [Int]
+  maxOccupancy: NaturalNumber
+  dualOccupancy: DualOccupancy
+  bathroomType: BathroomTypeCategory
+  kitchenArrangement: KitchenArrangement
+  bedroomCountMin: NaturalNumber
+  bedroomCountMax: NaturalNumber
+  bathroomCount: Float
+  kitchenCount: Float
+  genderMix: GenderMix
+  dietaryPreference: DietaryPreference
+  smokingPreference: SmokingPreference
+  lastFurnished: YearMonth
+  facilities: [RoomFacility]
+  bedSizeType: BedSizeType
+  bedSizes: [BedSizesInput]
+  roomSize: RoomSizesInput
+}
+
+type DeleteRoomPayload {
+  result: Boolean
+}
+
+input DeleteRoomInput {
+  id: DecodedUnitTypeID!
+}
+
+type CreateBookNowFeePayload {
+  bookNowFee: BookNowFee
+}
+
+input CreateBookNowFeeInput {
+  propertyId: DecodedPropertyID!
+  name: NonEmptyString!
+  calculationType: BookNowFeeType!
+  calculationValue: Float!
+  paymentProcessingFee: Boolean!
+}
+
+type UpdateBookNowFeePayload {
+  bookNowFee: BookNowFee
+}
+
+input UpdateBookNowFeeInput {
+  id: DecodedPaymentDepositRuleID!
+  name: String
+  calculationType: BookNowFeeType!
+  calculationValue: Float!
+  paymentProcessingFee: Boolean!
+}
+
+type DeleteBookNowFeePayload {
+  success: Boolean
+}
+
+input DeleteBookNowFeeInput {
+  id: DecodedPaymentDepositRuleID!
+}
+
+type EnableBookNowFeePayload {
+  success: Boolean
+}
+
+input EnableBookNowFeeInput {
+  propertyId: DecodedPropertyID!
+  enable: Boolean!
+}
+
+type OfflinePaymentMethodPayload {
+  offlinePaymentMethod: OfflinePaymentMethod
+}
+
+type OfflinePaymentMethod {
+  id: ID!
+  landlordId: ID!
+  methodType: OfflinePaymentMethodType!
+  data: JSON!
+  instruction: String
+  createdAt: Datetime!
+  updatedAt: Datetime!
+  updatedBy: LandlordContact
+}
+
+"OfflinePaymentMethodType"
+enum OfflinePaymentMethodType {
+  PAYMENT_LINK
+  VIRTUAL_CREDIT_CARD
+  BANK_TRANSFER
+  OTHER
+}
+
+input CreateOfflinePaymentMethodInput {
+  methodType: OfflinePaymentMethodType!
+  data: JSON!
+  propertyId: DecodedPropertyID!
+  instruction: String
+}
+
+input UpdateOfflinePaymentMethodInput {
+  id: DecodedOfflinePaymentMethodID!
+  methodType: OfflinePaymentMethodType!
+  data: JSON!
+  instruction: String
+}
+
+input CreateOnlinePaymentMethodInput {
+  name: NonEmptyString!
+  methodType: OnlinePaymentMethodType!
+  stripes: OnlinePaymentMethodStripeInput
+  virtualCreditCards: OnlinePaymentMethodVirtualCreditCardInput
+  bankTransfers: OnlinePaymentMethodBankTransferInput
+  properties: [OnlinePaymentMethodBankPropertyInput!]!
+}
+
+input OnlinePaymentMethodStripeInput {
+  stripeId: NonEmptyString!
+}
+
+input OnlinePaymentMethodVirtualCreditCardInput {
+  email: NonEmptyString!
+}
+
+input OnlinePaymentMethodBankTransferInput {
+  data: JSON!
+}
+
+input updateOnlinePaymentMethodInput {
+  onlinePaymentMethodId: DecodedWithdrawMethodID!
+  name: NonEmptyString
+  methodType: OnlinePaymentMethodType
+  stripes: OnlinePaymentMethodStripeInput
+  virtualCreditCards: OnlinePaymentMethodVirtualCreditCardInput
+  bankTransfers: OnlinePaymentMethodBankTransferInput
+  properties: [OnlinePaymentMethodBankPropertyInput!]!
+}
+
+input deleteOnlinePaymentMethodInput {
+  onlinePaymentMethodId: ID!
+}
+
+type OrderDepositPayload {
+  orderDeposit: OrderDeposit
+}
+
+input CreateOrderDepositInput {
+  paymentPlanId: ID!
+  depositOrFeeName: NonEmptyString!
+  amountType: DepositFeeType!
+  amount: NonEmptyString!
+  currency: CurrencyUnit!
+  description: String
+  payNowToStcom: Boolean = true
+}
+
+input UpdateOrderDepositInput {
+  id: ID!
+  depositOrFeeName: NonEmptyString
+  amountType: DepositFeeType
+  amount: NonEmptyString
+  currency: CurrencyUnit
+  description: String
+  payNowToStcom: Boolean
+}
+
+input DeleteOrderDepositInput {
+  id: ID!
+}
+
+type OrderFeePayload {
+  orderFee: OrderFee
+}
+
+input CreateOrderFeeInput {
+  paymentPlanId: ID!
+  depositOrFeeName: NonEmptyString!
+  amountType: DepositFeeType!
+  amount: NonEmptyString!
+  currency: CurrencyUnit!
+  description: String
+  payNowToStcom: Boolean = false
+}
+
+input UpdateOrderFeeInput {
+  id: ID!
+  depositOrFeeName: NonEmptyString
+  amountType: DepositFeeType
+  amount: NonEmptyString
+  currency: CurrencyUnit
+  description: String
+  payNowToStcom: Boolean
+}
+
+input DeleteOrderFeeInput {
+  id: ID!
+}
+
+type UpdatePaymentPlanInstalmentsPayload {
+  orderInstalments: [OrderInstalment]
+}
+
+input UpdatePaymentPlanInstalmentsInput {
+  paymentPlanId: DecodedPaymentPlanID!
+  rentPaymentOptions: [rentPaymentOptions]
+}
+
+input rentPaymentOptions {
+  id: DecodedOrderInstalmentID
+  fromTenancyStart: Int!
+  toTenancyEnd: Int
+  tenancyUnit: TenancyUnit = WEEKS
+  fullPayment: Boolean
+  rentalInstallments: Boolean
+  payNowToStcom: Float
+  quarterly: Boolean
+  monthly: Boolean
+  weekly: Boolean
+  allAtOnce: Boolean
+  requireGuarantor: Boolean
+  country: String
+}
+
+input CreatePaymentPlanInput {
+  paymentPlanName: NonEmptyString!
+  paymentCurrency: CurrencyUnit!
+  description: String
+  effectiveFromDate: Date!
+  effectiveEndDate: Date!
+  paymentOnline: Boolean
+  appliedProperties: [CreatePaymentPlanProperty]
+  category: PaymentPlanCategory = RENT_IS_REQUIRED
+}
+
+input CreatePaymentPlanProperty {
+  propertyId: ID!
+}
+
+input UpdatePaymentPlanInput {
+  id: ID!
+  paymentPlanName: NonEmptyString
+  paymentCurrency: CurrencyUnit
+  description: String
+  effectiveFromDate: DateTime
+  effectiveEndDate: DateTime
+  appliedProperties: [UpdatePaymentPlanProperty]
+}
+
+"The javascript `Date` as string. Type represents date and time as the ISO Date string."
+scalar DateTime
+
+input UpdatePaymentPlanProperty {
+  propertyId: ID!
+  paymentPlanId: ID!
+}
+
+input DeletePaymentPlanInput {
+  id: ID!
+}
+
+type UpdatePropertyPaymentPlanPayload {
+  success: Boolean
+  message: String
+}
+
+input UpdatePropertyPaymentPlanInput {
+  propertyId: DecodedPropertyID!
+  paymentPlanId: DecodedPaymentPlanID!
+}
+
+type ConfirmBookingPayload {
+  result: Boolean
+}
+
+input ConfirmBookingInput {
+  referenceId: String!
+  confirmResult: Boolean!
+  rejectedReason: String
+}
+
+type ConfirmOfflinePaymentPayload {
+  success: Boolean
+}
+
+input ConfirmOfflinePaymentInput {
+  referenceId: String!
+}
+
+type CreateLandlordPayload {
+  landlord: Landlord
+}
+
+input CreateLandlordInput {
+  name: NonEmptyString!
+  companyType: CompanyType!
+  billingAddress: NonEmptyString!
+  billingPostalCode: NonEmptyString!
+  businessNumber: NonEmptyString!
+  businessScale: Int
+  billingCityId: DecodedCityID
+}
+
+type ActiveLandlordPayload {
+  apiToken: String
+}
+
+input ActiveLandlordInput {
+  activationToken: NonEmptyString!
+}
+
+type CreateLandlordSubscriptionPayload {
+  callbackUrl: String
+  name: String
+}
+
+input CreateLandlordSubscriptionInput {
+  callbackUrl: NonEmptyString!
+  name: NonEmptyString!
+}
+
+type UpdateLandlordSubscriptionPayload {
+  callbackUrl: String
+  name: String
+}
+
+input UpdateLandlordSubscriptionInput {
+  callbackUrl: NonEmptyString!
+  name: NonEmptyString!
+}
+
+scalar DecodedPropertyID
+
+scalar DecodedUnitTypeID
+
+scalar DecodedListingID
+
+scalar DecodedCityID
+
+scalar DecodedPropertyTermID
+
+scalar DecodedPropertyLinkID
+
+scalar DecodedRoomLinkID
+
+scalar DecodedImageID
+
+scalar DecodedFloorPlanID
+
+scalar DecodedPaymentDepositRuleID
+
+scalar DecodedOfflinePaymentMethodID
+
+scalar DecodedWithdrawMethodID
+
+scalar DecodedPaymentPlanID
+
+scalar DecodedOrderInstalmentID
