@@ -1,4 +1,4 @@
-﻿schema {
+schema {
   query: Query
   mutation: Mutation
 }
@@ -190,6 +190,7 @@ enum BookingJourney {
   BOOKING_WITH_CONSULTANT
   MESSAGE_PROPERTY
   RESERVE_ROOM
+  LEAD_GENERATION
 }
 
 "ApartmentType"
@@ -1047,6 +1048,7 @@ input CreatePropertyInput {
 enum PropertyBookingJourney {
   MESSAGE_PROPERTY
   RESERVE_ROOM
+  LEAD_GENERATION
 }
 
 enum FreeCancellationPeriod {

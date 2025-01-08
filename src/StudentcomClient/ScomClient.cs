@@ -13,5 +13,6 @@ public class StudentcomClient : ScomClient, IDisposable
         BaseAddress = new Uri("https://public-gateway.dandythrust.com/graphql")
     }, true))
     {
+        
     }
 }

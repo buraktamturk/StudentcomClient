@@ -7,5 +7,6 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f70350f2_002Dca77_002D4f7d_002Dae1d_002Dc42e82a8fe40/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestGetCountries" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::AFF13038-56E5-4892-9081-002585B7FB56::net9.0::StudentcomClient.Tests.StudentcomClientTests.TestGetCountries&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::AFF13038-56E5-4892-9081-002585B7FB56::net9.0::StudentcomClient.Tests.StudentcomClientTests.TestPagePaymentPlans&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

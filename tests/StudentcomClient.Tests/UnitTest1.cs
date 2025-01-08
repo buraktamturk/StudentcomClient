@@ -101,6 +101,20 @@ public sealed class StudentcomClientTests : IDisposable
 
     }
 
+    [Fact]
+    public async Task TestPagePaymentPlans()
+    {
+        int pageNumber = 1;
+        var query = await _client.Query(a => a.PagePaymentPlans(pageNumber, selector: a => new
+        {
+            PaymentPlans = a.PaymentPlans(b => new
+            {
+                b.Name
+            })
+        }));
+        
+    }
+
     public void Dispose()
     {
         _client.Dispose();
