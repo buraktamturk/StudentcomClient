@@ -87,6 +87,7 @@ type Discount {
 enum DiscountType {
   ABSOLUTE
   PERCENTAGE
+  NO_DISCOUNT
 }
 
 enum TurnaroundType {
@@ -991,7 +992,7 @@ input TenancyInput {
 
 input DiscountInput {
   discountType: DiscountType!
-  discountValue: String!
+  discountValue: NonEmptyString
 }
 
 type UpdateRateAvailabilityPayload {

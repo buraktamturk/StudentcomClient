@@ -67,7 +67,7 @@ public sealed class StudentcomClientTests : IDisposable
             {
                 
             },
-            BedCount = new NaturalNumber() {Value = "1"},
+            BedCount = 1,
             DualOccupancy = DualOccupancy.DualOccupancyNotAllowed,
             KitchenArrangement = KitchenArrangement.Shared,
             Facilities = [RoomFacility.Bathroom, RoomFacility.Wifi],
