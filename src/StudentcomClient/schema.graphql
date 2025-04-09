@@ -1124,7 +1124,6 @@ type PublishPropertyPayload {
 
 input PublishPropertyInput {
   propertyId: DecodedPropertyID!
-  publish: Boolean!
 }
 
 type CreatePropertyTermPayload {
