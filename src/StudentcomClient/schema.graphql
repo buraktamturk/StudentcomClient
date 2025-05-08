@@ -287,6 +287,11 @@ type Image {
   active: Boolean
   status: GalleryStatus
   hero: Boolean
+  height: PositiveInteger
+  width: PositiveInteger
+  size: PositiveInteger
+  position: Int
+  source: String
 }
 
 "Image Type"
@@ -304,6 +309,7 @@ enum ImageCategory {
   GENERAL
   ROOM
   SPECIFIC
+  MAP
 }
 
 "Gallery Status"
@@ -315,6 +321,9 @@ enum GalleryStatus {
   REJECTED
   PUBLIC
 }
+
+"PositiveInteger is a integer(>=1)."
+scalar PositiveInteger
 
 type Video {
   id: ID!
@@ -624,9 +633,6 @@ type LandlordContact {
   phone: String
   email: String
 }
-
-"PositiveInteger is a integer(>=1)."
-scalar PositiveInteger
 
 type PaymentPlanPayload {
   paymentPlan: PaymentPlan
