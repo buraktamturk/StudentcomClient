@@ -4,18 +4,18 @@ schema {
 }
 
 type Query {
-  getRateAvailability(id: ID!): GetRateAvailabilityPayload
+  getRateAvailability(id: ID rateAvailabilityExternalId: NonEmptyString propertyExternalId: NonEmptyString): GetRateAvailabilityPayload
   getRateAvailabilities(pageNumber: Int = 1 pageSize: Int = 100 roomId: ID!): GetRateAvailabilitiesPayload
   getCity(id: ID!): City
   getCities(countryId: ID! pageNumber: Int = 1 pageSize: Int = 10): GetCitiesPayload
   getCountry(id: ID!): Country
   getCountries(pageNumber: Int = 1 pageSize: Int = 10): GetCountriesPayload
-  getProperty(id: ID!): GetPropertyPayload
+  getProperty(id: ID propertyExternalId: NonEmptyString): GetPropertyPayload
   getProperties(pageNumber: Int = 1 pageSize: Int = 10 name: String apartmentType: ApartmentType cityId: ID country: String bookingType: BookingJourney status: PropertyStatus): GetPropertiesPayload
   checkPublishProperty(input: CheckPublishPropertyInput!): CheckPublishPropertyPayload
   getFacilities: GetFacilitiesPayload
   searchUniversities(citySlug: String sort: String name: String pageNumber: Int = 1 pageSize: Int = 10): Universities
-  getRoom(id: ID!): GetRoomPayload
+  getRoom(id: ID roomExternalId: NonEmptyString propertyExternalId: NonEmptyString): GetRoomPayload
   getRooms(pageNumber: Int = 1 pageSize: Int = 100 propertyId: ID!): GetRoomsPayload
   checkPropertyOfOnlinePaymentMethod(properties: [OnlinePaymentMethodBankPropertyInput]): ResultPayload
   listOnlinePaymentMethods(pageNumber: PositiveInteger = 1 pageSize: PositiveInteger = 10): PageOnlinePaymentMethodsPayload
@@ -41,6 +41,7 @@ type RateAvailability {
   availableThoughMoveInDatePassed: Boolean
   turnaroundType: TurnaroundType
   turnaroundTime: Int
+  externalId: NonEmptyString
 }
 
 type Tenancy {
@@ -94,6 +95,9 @@ enum TurnaroundType {
   NOT_APPLIED
   FIXED_DAYS
 }
+
+"NonemptyString cannot be an empty string."
+scalar NonEmptyString
 
 type GetRateAvailabilitiesPayload {
   pageInfo: PageInfo
@@ -177,6 +181,7 @@ type Property {
   documentations: [Documentation]
   confirmDueHours: PropertyDueHours
   paymentDueHours: PropertyDueHours
+  externalId: NonEmptyString
 }
 
 enum PropertyStatus {
@@ -190,6 +195,7 @@ enum PropertyStatus {
 enum BookingJourney {
   BOOKING_WITH_CONSULTANT
   MESSAGE_PROPERTY
+  FULL_AUTOMATIC
   RESERVE_ROOM
   LEAD_GENERATION
 }
@@ -454,6 +460,7 @@ type Room {
   roomSize: RoomSize
   bedSizeType: BedSizeType
   bedSizes: [BedSize!]
+  externalId: NonEmptyString
   links: [RoomLink!]
   images: [Image!]
   videos: [Video!]
@@ -600,9 +607,6 @@ type OnlinePaymentMethod {
   properties: [Property]
   updatedBy: LandlordContact!
 }
-
-"NonemptyString cannot be an empty string."
-scalar NonEmptyString
 
 "Online Payment Method Type"
 enum OnlinePaymentMethodType {
@@ -949,6 +953,8 @@ type Mutation {
   updateOfflinePaymentMethod(input: UpdateOfflinePaymentMethodInput): OfflinePaymentMethodPayload
   createOnlinePaymentMethod(input: CreateOnlinePaymentMethodInput): OnlinePaymentMethod
   updateOnlinePaymentMethod(input: updateOnlinePaymentMethodInput): OnlinePaymentMethod
+  bindPropertiesToOnlinePaymentMethod(input: BindPropertiesToOnlinePaymentMethodInput!): UpdatePropertyPaymentMethodPayload
+  unbindPropertiesToOnlinePaymentMethod(input: UnbindPropertiesToOnlinePaymentMethodInput!): UpdatePropertyPaymentMethodPayload
   deleteOnlinePaymentMethod(input: deleteOnlinePaymentMethodInput): OnlinePaymentMethod
   createOrderDeposit(input: CreateOrderDepositInput): OrderDepositPayload
   updateOrderDeposit(input: UpdateOrderDepositInput): OrderDepositPayload
@@ -961,6 +967,8 @@ type Mutation {
   updatePaymentPlan(input: UpdatePaymentPlanInput): PaymentPlanPayload
   deletePaymentPlan(input: DeletePaymentPlanInput): PaymentPlanPayload
   updatePropertyPaymentPlan(input: UpdatePropertyPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
+  bindPropertiesToPaymentPlan(input: BindPropertiesToPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
+  unbindPropertiesToPaymentPlan(input: UnbindPropertiesToPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
   confirmBooking(input: ConfirmBookingInput!): ConfirmBookingPayload
   confirmOfflinePayment(input: ConfirmOfflinePaymentInput!): ConfirmOfflinePaymentPayload
   createLandlord(input: CreateLandlordInput!): CreateLandlordPayload
@@ -985,6 +993,7 @@ input CreateRateAvailabilityInput {
   availableThoughMoveInDatePassed: Boolean
   turnaroundType: TurnaroundType
   turnaroundTime: Int
+  externalId: NonEmptyString
 }
 
 input TenancyInput {
@@ -1010,13 +1019,23 @@ input UpdateRateAvailabilityInput {
   bookableFrom: Date!
   bookableTo: Date
   availability: Int!
-  tenancy: TenancyInput
+  tenancy: UpdateTenancyInput
   discount: DiscountInput
   priceMin: NonEmptyString
   priceMax: String
   availableThoughMoveInDatePassed: Boolean
   turnaroundType: TurnaroundType
   turnaroundTime: Int
+  externalId: NonEmptyString
+}
+
+input UpdateTenancyInput {
+  moveIn: Date
+  moveOut: Date
+  moveInType: MoveInType
+  moveOutType: MoveOutType
+  tenancyLengthType: TenancyLengthType
+  tenancyLengthValue: [Int]
 }
 
 type DeleteRateAvailabilityPayload {
@@ -1045,6 +1064,7 @@ input CreatePropertyInput {
   tagLine: NonEmptyString
   descriptionCn: String
   description: NonEmptyString
+  externalId: NonEmptyString
   cancellationProcess: String
   freeCancellationPeriod: FreeCancellationPeriod
   noVisaNoPay: Boolean
@@ -1094,6 +1114,7 @@ input UpdatePropertyInput {
   tagLine: NonEmptyString
   descriptionCn: String
   description: NonEmptyString
+  externalId: NonEmptyString
 }
 
 input UpdatePropertyDueHoursInput {
@@ -1285,6 +1306,7 @@ input CreateRoomInput {
   bedSizeType: BedSizeType!
   bedSizes: [BedSizesInput]
   roomSize: RoomSizesInput
+  externalId: NonEmptyString
 }
 
 "NaturalNumber is a integer(>=0)."
@@ -1330,6 +1352,7 @@ input UpdateRoomInput {
   bedSizeType: BedSizeType
   bedSizes: [BedSizesInput]
   roomSize: RoomSizesInput
+  externalId: NonEmptyString
 }
 
 type DeleteRoomPayload {
@@ -1446,7 +1469,21 @@ input updateOnlinePaymentMethodInput {
   stripes: OnlinePaymentMethodStripeInput
   virtualCreditCards: OnlinePaymentMethodVirtualCreditCardInput
   bankTransfers: OnlinePaymentMethodBankTransferInput
-  properties: [OnlinePaymentMethodBankPropertyInput!]!
+}
+
+type UpdatePropertyPaymentMethodPayload {
+  success: Boolean
+  message: String
+}
+
+input BindPropertiesToOnlinePaymentMethodInput {
+  propertyIds: [ID!]!
+  onlinePaymentMethodId: ID!
+}
+
+input UnbindPropertiesToOnlinePaymentMethodInput {
+  propertyIds: [ID!]!
+  onlinePaymentMethodId: ID!
 }
 
 input deleteOnlinePaymentMethodInput {
@@ -1552,20 +1589,13 @@ input CreatePaymentPlanProperty {
 input UpdatePaymentPlanInput {
   id: ID!
   paymentPlanName: NonEmptyString
-  paymentCurrency: CurrencyUnit
   description: String
   effectiveFromDate: DateTime
   effectiveEndDate: DateTime
-  appliedProperties: [UpdatePaymentPlanProperty]
 }
 
 "The javascript `Date` as string. Type represents date and time as the ISO Date string."
 scalar DateTime
-
-input UpdatePaymentPlanProperty {
-  propertyId: ID!
-  paymentPlanId: ID!
-}
 
 input DeletePaymentPlanInput {
   id: ID!
@@ -1579,6 +1609,16 @@ type UpdatePropertyPaymentPlanPayload {
 input UpdatePropertyPaymentPlanInput {
   propertyId: DecodedPropertyID!
   paymentPlanId: DecodedPaymentPlanID!
+}
+
+input BindPropertiesToPaymentPlanInput {
+  propertyIds: [ID!]!
+  paymentPlanId: ID!
+}
+
+input UnbindPropertiesToPaymentPlanInput {
+  propertyIds: [ID!]!
+  paymentPlanId: ID!
 }
 
 type ConfirmBookingPayload {
