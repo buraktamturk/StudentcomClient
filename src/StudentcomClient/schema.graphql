@@ -5,7 +5,7 @@ schema {
 
 type Query {
   getRateAvailability(id: ID rateAvailabilityExternalId: NonEmptyString propertyExternalId: NonEmptyString): GetRateAvailabilityPayload
-  getRateAvailabilities(pageNumber: Int = 1 pageSize: Int = 100 roomId: ID!): GetRateAvailabilitiesPayload
+  getRateAvailabilities(pageNumber: Int = 1 pageSize: Int = 20 roomId: ID!): GetRateAvailabilitiesPayload
   getCity(id: ID!): City
   getCities(countryId: ID! pageNumber: Int = 1 pageSize: Int = 10): GetCitiesPayload
   getCountry(id: ID!): Country
@@ -16,11 +16,13 @@ type Query {
   getFacilities: GetFacilitiesPayload
   searchUniversities(citySlug: String sort: String name: String pageNumber: Int = 1 pageSize: Int = 10): Universities
   getRoom(id: ID roomExternalId: NonEmptyString propertyExternalId: NonEmptyString): GetRoomPayload
-  getRooms(pageNumber: Int = 1 pageSize: Int = 100 propertyId: ID!): GetRoomsPayload
+  getRooms(pageNumber: Int = 1 pageSize: Int = 20 propertyId: ID!): GetRoomsPayload
   checkPropertyOfOnlinePaymentMethod(properties: [OnlinePaymentMethodBankPropertyInput]): ResultPayload
   listOnlinePaymentMethods(pageNumber: PositiveInteger = 1 pageSize: PositiveInteger = 10): PageOnlinePaymentMethodsPayload
   getPaymentPlan(id: ID propertyId: ID): PaymentPlanPayload
   pagePaymentPlans(pageNumber: PositiveInteger = 1 pageSize: PositiveInteger = 10 paymentCurrency: CurrencyUnit category: PaymentPlanCategory): GetPaymentPlansPayload
+  getLead(referenceId: String!): GetLeadPayload
+  getLeads(pageNumber: Int = 1 pageSize: Int = 10 createdFrom: Date createdTo: Date propertyId: ID roomId: ID propertyExternalId: NonEmptyString bookingJourney: LeadBookingJourney stage: LeadStage studentId: ID): GetLeadsPayload
   getLandlord(id: ID!): GetLandlordPayload
 }
 
@@ -194,10 +196,10 @@ enum PropertyStatus {
 "Booking Journey"
 enum BookingJourney {
   BOOKING_WITH_CONSULTANT
-  MESSAGE_PROPERTY
-  FULL_AUTOMATIC
-  RESERVE_ROOM
-  LEAD_GENERATION
+  BOOK
+  CONNECT_STUDENT_SUITE
+  CONNECT
+  LIST
 }
 
 "ApartmentType"
@@ -868,6 +870,169 @@ type GetPaymentPlansPayload {
   pageInfo: PageInfo
 }
 
+type GetLeadPayload {
+  lead: Lead
+}
+
+type Lead {
+  id: ID!
+  referenceId: String!
+  stage: LeadStage!
+  secondaryStage: LeadSecondaryStage
+  billingCycle: LeadBillingCycle!
+  currency: String!
+  moveInDate: Date!
+  moveOutDate: Date!
+  bookingJourney: BookingJourney
+  propertyId: ID!
+  propertyName: String!
+  unitTypeId: ID!
+  unitTypeName: String!
+  roomId: ID!
+  roomName: String!
+  rateAvailabilityId: ID!
+  rateAvailabilitySalesPrice: String
+  rateAvailabilityMinPrice: String
+  rateAvailabilityMaxPrice: String
+  rateAvailabilityDiscountType: String
+  rateAvailabilityDiscountValue: String
+  rateAvailabilityMoveIn: Date
+  rateAvailabilityMoveOut: Date
+  rateAvailabilityMoveInType: String
+  rateAvailabilityMoveOutType: String
+  rateAvailabilityTenancyLengthType: String
+  rateAvailabilityTenancyLengthValue: String
+  studentId: ID!
+  passportFirstName: String
+  passportMiddleName: String
+  passportLastName: String
+  passportFullName: String
+  studentData: JSON
+  guarantor: Guarantor
+  destinationUniversity: String
+  createdAt: Datetime
+  updatedAt: Datetime
+  rejectedBy: String
+  rejectedReason: String
+  cancelledBy: String
+  cancelledAt: Datetime
+  cancelledReason: String
+  cancellationNote: String
+  paidAt: Datetime
+  lostAt: Datetime
+  completedAt: Datetime
+  confirmedAt: Datetime
+  totalPrice: String
+  totalDeposit: String
+  totalFee: String
+  totalRental: String
+  uploadFiles: [StudentUploadFile]
+  property: Property
+  room: Room
+  rateAvailability: RateAvailability
+}
+
+enum LeadStage {
+  WAITING_FOR_CONFIRMATION
+  WAITING_FOR_PAYMENT
+  WAITING_FOR_CHECK_IN
+  AFTER_SALES_INTERVENTION
+  REFUNDING
+  FILLING_PERSONAL_INFO
+  SIGNING_AGREEMENT
+  MAKING_PAYMENT
+  BOOKING_CONFIRMED
+  SELECTING_PAYMENT_PLAN
+  IN_PROGRESS
+  LOST
+  CANCELLED
+  CHECKED_IN
+  COMPLETED
+}
+
+enum LeadSecondaryStage {
+  NON_CONFIRM_IN_TIME
+  REJECT_BY_LANDLORD
+  CANCELLED_BY_SERVICE_TEAM
+  CANCEL_BY_LANDLORD
+  ALL_NON_REFUND
+  PARTIAL_NON_REFUND
+  PENDING_COUNTER_OFFER
+  COUNTER_OFFER_NON_CONFIRM_IN_TIME
+  COUNTER_OFFER_REJECTED_BY_STUDENT
+  COUNTER_OFFER_ACCEPTED_BY_STUDENT
+  NO_INVENTORY_AVAILABLE
+  NON_SIGN_IN_TIME
+  PENDING_GUARANTOR_INFO
+  NO_NEED_GUARANTOR
+  GUARANTOR_PROVIDED
+  NO_PAYMENT_PLAN_SELECTED
+  NON_PAY_IN_TIME
+  CANCEL_BY_STUDENT
+  CANCEL_BY_STUDENT_PARTIAL_REFUNDED
+  CANCEL_BY_STUDENT_ALL_REFUNDED
+}
+
+enum LeadBillingCycle {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+type Guarantor {
+  studentId: ID!
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  phone: String
+  emailAddress: String
+  gender: Gender
+  relationshipWithStudent: GuarantorRelationship
+  addressLines: String
+  postalCode: String
+  city: String
+  state: String
+  country: String
+  cityInfo: City
+}
+
+"gender"
+enum Gender {
+  MALE
+  FEMALE
+}
+
+"GuarantorRelationship"
+enum GuarantorRelationship {
+  MOTHER
+  FATHER
+  FRIEND
+  OTHER
+}
+
+type StudentUploadFile {
+  id: ID
+  studentId: ID
+  name: String
+  type: String
+  source: String
+  createdAt: Datetime
+  updatedAt: Datetime
+}
+
+type GetLeadsPayload {
+  pageInfo: PageInfo
+  leads: [Lead]
+}
+
+"Lead Booking Journey"
+enum LeadBookingJourney {
+  BOOK
+  CONNECT_STUDENT_SUITE
+  CONNECT
+  LIST
+}
+
 type GetLandlordPayload {
   landlord: Landlord
 }
@@ -922,6 +1087,7 @@ enum CompanyType {
 type Mutation {
   createRateAvailability(input: CreateRateAvailabilityInput!): CreateRateAvailabilityPayload
   updateRateAvailability(input: UpdateRateAvailabilityInput!): UpdateRateAvailabilityPayload
+  bulkUpdateRateAvailability(input: BulkUpdateRateAvailabilityInput!): [RateAvailability]
   deleteRateAvailability(input: DeleteRateAvailabilityInput!): DeleteRateAvailabilityPayload
   createProperty(input: CreatePropertyInput!): CreatePropertyPayload
   updateProperty(input: UpdatePropertyInput!): UpdatePropertyPayload
@@ -1038,6 +1204,25 @@ input UpdateTenancyInput {
   tenancyLengthValue: [Int]
 }
 
+input BulkUpdateRateAvailabilityInput {
+  ids: [ID!]!
+  data: BulkUpdateRateAvailabilityDataInput!
+}
+
+input BulkUpdateRateAvailabilityDataInput {
+  bookableFrom: Date!
+  bookableTo: Date
+  availability: Int!
+  tenancy: UpdateTenancyInput
+  discount: DiscountInput
+  priceMin: NonEmptyString
+  priceMax: String
+  availableThoughMoveInDatePassed: Boolean
+  turnaroundType: TurnaroundType
+  turnaroundTime: Int
+  externalId: NonEmptyString
+}
+
 type DeleteRateAvailabilityPayload {
   result: Boolean
 }
@@ -1073,9 +1258,9 @@ input CreatePropertyInput {
 
 "Property Booking Journey"
 enum PropertyBookingJourney {
-  MESSAGE_PROPERTY
-  RESERVE_ROOM
-  LEAD_GENERATION
+  BOOK
+  CONNECT
+  LIST
 }
 
 enum FreeCancellationPeriod {

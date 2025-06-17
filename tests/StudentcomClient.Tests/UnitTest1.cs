@@ -19,7 +19,7 @@ public sealed class StudentcomClientTests : IDisposable
     [Fact]
     public async Task TestGetCountries()
     {
-        var results = await _client.Query(a => a.GetCountries(1, 100, a => new
+        var results = await _client.Query(a => a.GetCountries(1, 20, a => new
         {
             countries = a.Counties(b => new { b.Id, b.Name }),
             pageInfo = a.PageInfo(a => new { a.CurrentPage, a.PageSize, a.TotalPages, a.Total })
@@ -28,7 +28,7 @@ public sealed class StudentcomClientTests : IDisposable
         Assert.NotNull(results);
 
         var countryId = results.Data.countries[0].Id;
-        var cities = await _client.Query(a => a.GetCities(countryId, 1, 100, b => new { cities = b.Cities(b => new { b.Id, b.Name }) }));
+        var cities = await _client.Query(a => a.GetCities(countryId, 1, 20, b => new { cities = b.Cities(b => new { b.Id, b.Name }) }));
 
         var facilities = await _client.Query(a =>
             a.GetFacilities(b => new
