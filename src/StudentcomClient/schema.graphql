@@ -164,7 +164,7 @@ type Property {
   zipCode: String!
   addressLine1: String
   addressLine2: String
-  apartmentType: ApartmentType!
+  apartmentType: AllApartmentType!
   tagLineCn: String
   tagLine: String
   descriptionCn: String
@@ -184,6 +184,9 @@ type Property {
   confirmDueHours: PropertyDueHours
   paymentDueHours: PropertyDueHours
   externalId: NonEmptyString
+  cancellationPeriodType: CancellationPeriodType
+  cancellationPeriodValue: Int
+  cancellationProcess: String
 }
 
 enum PropertyStatus {
@@ -202,11 +205,11 @@ enum BookingJourney {
   LIST
 }
 
-"ApartmentType"
-enum ApartmentType {
+"AllApartmentType"
+enum AllApartmentType {
   HOTEL_HOSTEL
   LONG_TAIL
-  MULTI_FAMILy
+  MULTI_FAMILY
   REAL
   STUDENT_ACCOMMODATION
   CO_LIVING
@@ -399,9 +402,41 @@ enum PropertyDueHours {
   HOURS_96
 }
 
+enum CancellationPeriodType {
+  BEFORE_MOVE_IN
+  UNTIL_MOVE_IN_DAY
+  NON_REFUNDABLE
+  AFTER_BOOKING_CONFIRMED
+}
+
 type GetPropertiesPayload {
   pageInfo: PageInfo
   properties: [Property]
+}
+
+"ApartmentType"
+enum ApartmentType {
+  CO_LIVING
+  APARTMENTS
+  HMO
+  HOUSE_SHARE
+  HOME_STAY
+  STUDENT_RESIDENCE_HALLS
+  DORMITORY
+  PURPOSE_BUILT_STUDENT_ACCOMMODATION
+  HOUSE
+  HOSTEL
+  HOTEL
+  APART_HOTEL
+  MULTIFAMILY
+  LODGE
+  CONDOS
+  TOWNHOUSE_HOME
+  BUNGALOW
+  TERRACE
+  VILLA
+  SERVICED_APARTMENT
+  DUPLEX
 }
 
 type CheckPublishPropertyPayload {
@@ -1121,17 +1156,17 @@ type Mutation {
   updateOnlinePaymentMethod(input: updateOnlinePaymentMethodInput): OnlinePaymentMethod
   bindPropertiesToOnlinePaymentMethod(input: BindPropertiesToOnlinePaymentMethodInput!): UpdatePropertyPaymentMethodPayload
   unbindPropertiesToOnlinePaymentMethod(input: UnbindPropertiesToOnlinePaymentMethodInput!): UpdatePropertyPaymentMethodPayload
-  deleteOnlinePaymentMethod(input: deleteOnlinePaymentMethodInput): OnlinePaymentMethod
+  deleteOnlinePaymentMethod(input: deleteOnlinePaymentMethodInput): DeletePayload
   createOrderDeposit(input: CreateOrderDepositInput): OrderDepositPayload
   updateOrderDeposit(input: UpdateOrderDepositInput): OrderDepositPayload
-  deleteOrderDeposit(input: DeleteOrderDepositInput): OrderDepositPayload
+  deleteOrderDeposit(input: DeleteOrderDepositInput): DeletePayload
   createOrderFee(input: CreateOrderFeeInput): OrderFeePayload
   updateOrderFee(input: UpdateOrderFeeInput): OrderFeePayload
-  deleteOrderFee(input: DeleteOrderFeeInput): OrderFeePayload
+  deleteOrderFee(input: DeleteOrderFeeInput): DeletePayload
   updatePaymentPlanInstalments(input: UpdatePaymentPlanInstalmentsInput): UpdatePaymentPlanInstalmentsPayload
   createPaymentPlan(input: CreatePaymentPlanInput): PaymentPlanPayload
   updatePaymentPlan(input: UpdatePaymentPlanInput): PaymentPlanPayload
-  deletePaymentPlan(input: DeletePaymentPlanInput): PaymentPlanPayload
+  deletePaymentPlan(input: DeletePaymentPlanInput): DeletePayload
   updatePropertyPaymentPlan(input: UpdatePropertyPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
   bindPropertiesToPaymentPlan(input: BindPropertiesToPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
   unbindPropertiesToPaymentPlan(input: UnbindPropertiesToPaymentPlanInput!): UpdatePropertyPaymentPlanPayload
@@ -1182,9 +1217,9 @@ type UpdateRateAvailabilityPayload {
 
 input UpdateRateAvailabilityInput {
   id: DecodedListingID!
-  bookableFrom: Date!
+  bookableFrom: Date
   bookableTo: Date
-  availability: Int!
+  availability: Int
   tenancy: UpdateTenancyInput
   discount: DiscountInput
   priceMin: NonEmptyString
@@ -1250,8 +1285,9 @@ input CreatePropertyInput {
   descriptionCn: String
   description: NonEmptyString
   externalId: NonEmptyString
+  cancellationPeriodType: CancellationPeriodType
+  cancellationPeriodValue: Int
   cancellationProcess: String
-  freeCancellationPeriod: FreeCancellationPeriod
   noVisaNoPay: Boolean
   noPlaceNoPay: Boolean
 }
@@ -1261,26 +1297,6 @@ enum PropertyBookingJourney {
   BOOK
   CONNECT
   LIST
-}
-
-enum FreeCancellationPeriod {
-  HOURS_24
-  HOURS_48
-  HOURS_72
-  BUSINESS_DAYS_5
-  CALENDAR_DAYS_0
-  CALENDAR_DAYS_3
-  CALENDAR_DAYS_5
-  CALENDAR_DAYS_7
-  CALENDAR_DAYS_14
-  CALENDAR_DAYS_28
-  CALENDAR_DAYS_30
-  CALENDAR_DAYS_60
-  CALENDAR_DAYS_90
-  UNTIL_CHECK_IN_DAY
-  UNTIL_THE_STUDENT_PAYS_FOR_THE_RENT
-  NO_COOLING_OFF_PERIOD
-  OTHER
 }
 
 type UpdatePropertyPayload {
@@ -1300,6 +1316,8 @@ input UpdatePropertyInput {
   descriptionCn: String
   description: NonEmptyString
   externalId: NonEmptyString
+  cancellationPeriodType: CancellationPeriodType
+  cancellationPeriodValue: Int
 }
 
 input UpdatePropertyDueHoursInput {
@@ -1311,7 +1329,6 @@ input UpdatePropertyDueHoursInput {
 input UpdatePropertyPolicyInput {
   propertyId: DecodedPropertyID!
   cancellationProcess: String
-  freeCancellationPeriod: FreeCancellationPeriod
   noVisaNoPay: Boolean
   noPlaceNoPay: Boolean
 }
@@ -1671,6 +1688,10 @@ input UnbindPropertiesToOnlinePaymentMethodInput {
   onlinePaymentMethodId: ID!
 }
 
+type DeletePayload {
+  result: Boolean
+}
+
 input deleteOnlinePaymentMethodInput {
   onlinePaymentMethodId: ID!
 }
@@ -1747,7 +1768,7 @@ input rentPaymentOptions {
   tenancyUnit: TenancyUnit = WEEKS
   fullPayment: Boolean
   rentalInstallments: Boolean
-  payNowToStcom: Float
+  payNowAmount: Float
   quarterly: Boolean
   monthly: Boolean
   weekly: Boolean
